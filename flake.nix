@@ -15,8 +15,7 @@
       # Nixpkgs instantiated for supported system types.
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; overlays = [ self.overlay ]; });
       # Build inputs; also for dev shells.
-      buildInputs = nixpkgs: with nixpkgs; [ which lua flex yacc ninja gcc ];
-
+      getBuildInputs = nixpkgs: with nixpkgs; [ which lua flex yacc ninja gcc ];
     in
     {
       # A Nixpkgs overlay; add ACK to the set of packages.
@@ -24,7 +23,7 @@
         amsterdam-compiler-kit = with final; stdenv.mkDerivation rec {
           name = "hello-${version}";
           src = ./.;
-          buildInputs = buildInputs final;
+          buildInputs = getBuildInputs final;
           # ACK uses Ninja under the hood to parallelize builds,
           # but still uses a Makefile for the entry point. To skip Nix's use of
           # ninja:
@@ -41,7 +40,7 @@
         let pkgs = nixpkgsFor.${system};
         in {
           default = pkgs.mkShell {
-            buildInputs = buildInputs pkgs;
+            buildInputs = getBuildInputs pkgs;
           };
         });
 
